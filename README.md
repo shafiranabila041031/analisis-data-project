@@ -25,13 +25,11 @@ Hasil analisis lanjutan menunjukkan bahwa kondisi *High Demand* memiliki korelas
 ### 1. Persiapan Environment
 Sangat disarankan untuk menggunakan *virtual environment* agar *library* proyek ini terisolasi dengan baik. Buka terminal/command prompt Anda:
 
-**Menggunakan Venv (Python Bawaan):**
+**Setup Environment**
 ```bash
-# Membuat virtual environment bernama "env"
 python -m venv env
-
-# Mengaktifkan environment (Untuk pengguna Windows)
 env\Scripts\activate
+```bash
 
-# Mengaktifkan environment (Untuk pengguna Mac/Linux)
-source env/bin/activate
+**Install Dependencies**
+pip install -r requirements.txt
