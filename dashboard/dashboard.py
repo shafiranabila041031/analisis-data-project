@@ -7,7 +7,6 @@ import os
 st.set_page_config(page_title="Bike Sharing Dashboard", page_icon="🚲", layout="wide")
 sns.set_theme(style="whitegrid")
 
-
 @st.cache_data
 def load_data():
     BASE_DIR = os.path.dirname(__file__)
@@ -18,7 +17,6 @@ def load_data():
     day_df = pd.read_csv(day_path)
     hour_df = pd.read_csv(hour_path)
     
-    # Memastikan format datetime
     day_df["dteday"] = pd.to_datetime(day_df["dteday"])
     hour_df["dteday"] = pd.to_datetime(hour_df["dteday"])
 
@@ -30,7 +28,6 @@ def load_data():
     return day_df, hour_df
 
 day_df, hour_df = load_data()
-
 
 with st.sidebar:
     st.header("🚲 Filter Data")
@@ -51,37 +48,37 @@ if len(date_range) == 2:
 else:
     start_date = end_date = date_range[0]
 
-# Memfilter data harian berdasarkan input tanggal di sidebar
 filtered_day = day_df[(day_df["dteday"].dt.date >= start_date) & (day_df["dteday"].dt.date <= end_date)]
 
-
 st.title("🚲 Bike Sharing Analytics Dashboard")
-st.markdown("Dashboard ini menyajikan hasil analisis data historis penyewaan sepeda berdasarkan kerangka pertanyaan bisnis **S.M.A.R.T**.")
+st.markdown("Dashboard ini menyajikan hasil analisis data historis penyewaan sepeda berdasarkan kerangka pertanyaan bisnis **S.M.A.R.T** serta gambaran umum operasional.")
 
 col1, col2, col3 = st.columns(3)
 with col1:
     total_rentals = filtered_day['cnt'].sum()
-    st.metric("Total Peminjaman (Terfilter)", value=f"{total_rentals:,}")
+    st.metric("Total Peminjaman", value=f"{total_rentals:,}")
 with col2:
     total_registered = filtered_day['registered'].sum()
-    st.metric("Pengguna Registered (Terfilter)", value=f"{total_registered:,}")
+    st.metric("Pengguna Registered", value=f"{total_registered:,}")
 with col3:
     total_casual = filtered_day['casual'].sum()
-    st.metric("Pengguna Casual (Terfilter)", value=f"{total_casual:,}")
+    st.metric("Pengguna Casual", value=f"{total_casual:,}")
 
 st.divider()
 
-tab1, tab2 = st.tabs(["📈 Pertanyaan 1: Tren MoM (2011 vs 2012)", "⏰ Pertanyaan 2: Rush Hour Q4 2012"])
-
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📈 Tren MoM (Pertanyaan 1)", 
+    "⏰ Rush Hour Q4 (Pertanyaan 2)",
+    "👥 Proporsi Pengguna",
+    "⛅ Pengaruh Cuaca"
+])
 
 with tab1:
     st.subheader("Tren Pertumbuhan Penyewaan Sepeda Bulanan")
-    st.markdown("**Pertanyaan Bisnis:** *Bagaimana tren pertumbuhan total penyewaan sepeda secara bulanan (Month-over-Month) sepanjang tahun 2012 jika dibandingkan dengan tahun 2011, guna merencanakan target penambahan kapasitas armada sepeda di tahun depan?*")
+    st.markdown("**Pertanyaan Bisnis:** *Bagaimana tren pertumbuhan total penyewaan sepeda secara bulanan (Month-over-Month) sepanjang tahun 2012 jika dibandingkan dengan tahun 2011?*")
     
-    # Agregasi data
     monthly_trend = day_df.groupby(['year', 'month'])['cnt'].sum().reset_index()
     
-    # Visualisasi
     fig1, ax1 = plt.subplots(figsize=(12, 5))
     sns.lineplot(data=monthly_trend, x='month', y='cnt', hue='year', marker='o', palette='Set1', linewidth=2.5, ax=ax1)
     ax1.set_title('Perbandingan Tren Bulanan (2011 vs 2012)', fontsize=14, fontweight='bold')
@@ -91,15 +88,13 @@ with tab1:
     ax1.set_xticklabels(['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'])
     st.pyplot(fig1)
     
-    # Insight dan Rekomendasi
     with st.expander("💡 Lihat Kesimpulan & Rekomendasi (Action Item)"):
-        st.write("**Kesimpulan:** Bisnis mengalami pertumbuhan (*growth*) Year-over-Year (YoY) yang sangat konsisten. Grafik juga menunjukkan sifat musiman (*seasonal*) yang kuat, di mana puncak permintaan selalu terjadi pada bulan Agustus-September, lalu menurun di akhir tahun.")
-        st.write("**Rekomendasi:** Manajemen harus menyelesaikan pengadaan armada sepeda baru untuk tahun 2013 paling lambat pada bulan **April/Mei** agar siap menghadapi lonjakan permintaan di kuartal ketiga.")
-
+        st.write("**Kesimpulan:** Bisnis mengalami pertumbuhan (*growth*) Year-over-Year (YoY) yang konsisten. Grafik juga menunjukkan sifat musiman (*seasonal*) yang kuat (puncak di Agustus-September).")
+        st.write("**Rekomendasi:** Manajemen harus menyelesaikan pengadaan armada sepeda baru untuk tahun 2013 paling lambat pada bulan **April/Mei**.")
 
 with tab2:
     st.subheader("Pola Jam Sibuk (Rush Hour) Hari Kerja di Kuartal 4 (2012)")
-    st.markdown("**Pertanyaan Bisnis:** *Pada jam berapakah rata-rata volume penyewaan sepeda mencapai puncaknya (rush hour) khusus pada hari kerja (workingday) selama Kuartal ke-4 (Bulan Oktober - Desember) tahun 2012, agar tim operasional dapat menetapkan jadwal maintenance rutin tanpa mengganggu pelanggan?*")
+    st.markdown("**Pertanyaan Bisnis:** *Pada jam berapakah rata-rata volume penyewaan sepeda mencapai puncaknya khusus pada hari kerja selama Kuartal ke-4 tahun 2012?*")
     
     q4_2012_workdays = hour_df[(hour_df['year'] == 2012) & 
                                (hour_df['month'].isin([10, 11, 12])) & 
@@ -121,7 +116,56 @@ with tab2:
     st.pyplot(fig2)
     
     with st.expander("💡 Lihat Kesimpulan & Rekomendasi (Action Item)"):
-        st.write("**Kesimpulan:** Pada hari kerja, terdapat dua puncak ekstrem (*rush hour*) yaitu pada pukul **08:00 pagi** dan pukul **17:00-18:00 sore**. Ini mengonfirmasi bahwa penyewa dominan adalah segmen komuter/pekerja. Jam dengan aktivitas terendah berada di rentang 00:00 hingga 05:00.")
-        st.write("**Rekomendasi:** Tim teknisi wajib memindahkan seluruh jadwal perbaikan rutin (maintenance) ke 'jam lembah' (pukul **22:00 - 05:00 pagi**). Dilarang keras melakukan penarikan unit sepeda rusak pada jam-jam sibuk pagi dan sore hari agar operasional tidak terganggu.")
+        st.write("**Kesimpulan:** Terdapat dua puncak ekstrem (*rush hour*) yaitu pada pukul **08:00 pagi** dan **17:00-18:00 sore**. Jam aktivitas terendah berada di rentang 00:00 hingga 05:00.")
+        st.write("**Rekomendasi:** Jadwal perbaikan rutin (maintenance) wajib dipindah ke pukul **22:00 - 05:00 pagi**.")
 
-st.caption("Bike Sharing Data Analytics Dashboard - Created for Dicoding Submission")
+with tab3:
+    st.subheader("Komparasi Tipe Pengguna")
+    st.markdown("Visualisasi ini bersifat dinamis mengikuti filter tanggal di *sidebar*.")
+    
+    fig3, ax3 = plt.subplots(figsize=(8, 6))
+    labels = ['Registered', 'Casual']
+    sizes = [total_registered, total_casual]
+    colors = ['#66b3ff', '#ff9999']
+    
+    explode = (0.05, 0)
+    
+    ax3.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%',
+            startangle=90, textprops={'fontsize': 12})
+    
+    centre_circle = plt.Circle((0,0), 0.70, fc='white')
+    fig3.gca().add_artist(centre_circle)
+    
+    ax3.axis('equal')  
+    st.pyplot(fig3)
+
+with tab4:
+    st.subheader("Dampak Kondisi Cuaca terhadap Volume Penyewaan")
+    st.markdown("Menampilkan rata-rata penyewaan per hari berdasarkan kondisi cuaca (Dinamis sesuai filter).")
+    
+    weather_mapping = {
+        1: 'Cerah / Sebagian Berawan',
+        2: 'Mendung / Berkabut',
+        3: 'Hujan Ringan / Salju',
+        4: 'Cuaca Buruk Ekstrem'
+    }
+    
+    weather_avg = filtered_day.groupby('weathersit')['cnt'].mean().reset_index()
+    weather_avg['weather_desc'] = weather_avg['weathersit'].map(weather_mapping)
+    
+    fig4, ax4 = plt.subplots(figsize=(10, 5))
+    sns.barplot(data=weather_avg, x='weather_desc', y='cnt', palette='viridis', ax=ax4)
+    ax4.set_title('Rata-rata Penyewaan Sepeda Berdasarkan Kondisi Cuaca', fontsize=14, fontweight='bold')
+    ax4.set_xlabel('Kondisi Cuaca', fontsize=12)
+    ax4.set_ylabel('Rata-rata Peminjaman', fontsize=12)
+
+    for p in ax4.patches:
+        ax4.annotate(format(p.get_height(), '.0f'), 
+                     (p.get_x() + p.get_width() / 2., p.get_height()), 
+                     ha = 'center', va = 'center', 
+                     xytext = (0, 9), 
+                     textcoords = 'offset points')
+                     
+    st.pyplot(fig4)
+
+st.caption("Bike Sharing Data Analytics Dashboard")
