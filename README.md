@@ -1,6 +1,3 @@
-# analisis-data-project
-# submission-proyek-analisis-data
-
 # Bike Sharing Data Analysis Dashboard
 
 ## Deskripsi Proyek
@@ -22,14 +19,22 @@ Hasil analisis lanjutan menunjukkan bahwa kondisi *High Demand* memiliki korelas
 
 ## Cara Menjalankan Dashboard (Setup & Run)
 
-### 1. Persiapan Environment
+### Persiapan Environment
 Sangat disarankan untuk menggunakan *virtual environment* agar *library* proyek ini terisolasi dengan baik. Buka terminal/command prompt Anda:
 
 **Setup Environment**
 ```bash
 python -m venv env
 env\Scripts\activate
+```
+### Install Dependencies
+**Install seluruh library yang dibutuhkan**
 ```bash
-
-**Install Dependencies**
 pip install -r requirements.txt
+```
+
+### Menjalankan Dashboard
+```bash
+cd dashboard
+streamlit run dashboard.py
+```
