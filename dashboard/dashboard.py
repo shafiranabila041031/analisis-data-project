@@ -83,7 +83,7 @@ if not monthly_trend.empty:
 else:
     st.info("Data tidak cukup untuk menampilkan tren bulanan pada rentang tanggal ini.")
 
-st.markdown("<br>", unsafe_allow_html=True) # Spasi antar grafik
+st.markdown("<br>", unsafe_allow_html=True)
 
 st.subheader("⏰ Pola Jam Sibuk (Rush Hour) Pada Hari Kerja")
 workdays_data = filtered_hour[filtered_hour['workingday'] == 1]
@@ -125,32 +125,46 @@ with left_col:
 
 with right_col:
     st.subheader("⛅ Pengaruh Cuaca")
-    weather_mapping = {
-        1: 'Cerah/Berawan',
-        2: 'Mendung/Berkabut',
-        3: 'Hujan Ringan/Salju',
-        4: 'Cuaca Buruk'
-    }
-    
-    weather_avg = filtered_day.groupby('weathersit')['cnt'].mean().reset_index()
-    
-    if not weather_avg.empty:
-        weather_avg['weather_desc'] = weather_avg['weathersit'].map(weather_mapping)
-        fig4, ax4 = plt.subplots(figsize=(8, 6))
-        sns.barplot(data=weather_avg, x='weather_desc', y='cnt', palette='viridis', ax=ax4)
-        ax4.set_title('Rata-rata Penyewaan Berdasarkan Cuaca', fontsize=12, fontweight='bold')
-        ax4.set_xlabel('', fontsize=10)
-        ax4.set_ylabel('Rata-rata Peminjaman', fontsize=10)
-        plt.xticks(rotation=15) # Memiringkan label agar tidak bertumpuk
-        
-        for p in ax4.patches:
-            ax4.annotate(format(p.get_height(), '.0f'), 
-                         (p.get_x() + p.get_width() / 2., p.get_height()), 
-                         ha = 'center', va = 'center', 
-                         xytext = (0, 9), 
-                         textcoords = 'offset points')
-        st.pyplot(fig4)
-    else:
-        st.info("Tidak ada data cuaca.")
 
-st.caption("Bike Sharing Data Analytics Dashboard - Dicoding Submission")
+    if 'weathersit' in filtered_day.columns:
+        weather_avg = filtered_day.groupby('weathersit')['cnt'].mean().reset_index()
+        
+        if not weather_avg.empty:
+            if pd.api.types.is_numeric_dtype(weather_avg['weathersit']):
+                weather_mapping = {
+                    1: 'Cerah/Berawan',
+                    2: 'Mendung/Berkabut',
+                    3: 'Hujan Ringan/Salju',
+                    4: 'Cuaca Buruk'
+                }
+                weather_avg = weather_avg.dropna(subset=['weathersit'])
+                weather_avg['weathersit'] = weather_avg['weathersit'].astype(int)
+                weather_avg['weather_desc'] = weather_avg['weathersit'].map(weather_mapping)
+            else:
+                weather_avg['weather_desc'] = weather_avg['weathersit']
+            
+            weather_avg = weather_avg.dropna(subset=['weather_desc'])
+            
+            if not weather_avg.empty:
+                fig4, ax4 = plt.subplots(figsize=(8, 6))
+                sns.barplot(data=weather_avg, x='weather_desc', y='cnt', palette='viridis', ax=ax4)
+                ax4.set_title('Rata-rata Penyewaan Berdasarkan Cuaca', fontsize=12, fontweight='bold')
+                ax4.set_xlabel('', fontsize=10)
+                ax4.set_ylabel('Rata-rata Peminjaman', fontsize=10)
+                plt.xticks(rotation=15)
+                
+                for p in ax4.patches:
+                    ax4.annotate(format(p.get_height(), '.0f'), 
+                                 (p.get_x() + p.get_width() / 2., p.get_height()), 
+                                 ha = 'center', va = 'center', 
+                                 xytext = (0, 9), 
+                                 textcoords = 'offset points')
+                st.pyplot(fig4)
+            else:
+                st.info("Data cuaca tidak valid pada rentang waktu ini.")
+        else:
+            st.info("Tidak ada data cuaca.")
+    else:
+        st.error("Kolom 'weathersit' tidak ditemukan di dalam dataset harian.")
+
+st.caption("Bike Sharing Data Analytics Dashboard")
