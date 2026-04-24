@@ -3,7 +3,7 @@
 ## Deskripsi Proyek
 Proyek ini merupakan tugas akhir (submission) untuk kelas **Belajar Analisis Data dengan Python** di Dicoding. Proyek ini bertujuan untuk menganalisis dataset *Bike Sharing* guna mendapatkan *insight* bisnis terkait pola pertumbuhan penyewaan dan perilaku komuter. Hasil analisis ini divisualisasikan melalui *dashboard* interaktif menggunakan Streamlit.
 
-## Pertanyaan Bisnis (S.M.A.R.T)
+## Pertanyaan Bisnis 
 Analisis dalam proyek ini dirancang secara spesifik untuk menjawab dua pertanyaan bisnis berikut:
 1. Bagaimana tren pertumbuhan total penyewaan sepeda secara bulanan (*Month-over-Month*) sepanjang tahun 2012 jika dibandingkan dengan tahun 2011, guna merencanakan target penambahan kapasitas armada sepeda di tahun depan?
 2. Pada jam berapakah rata-rata volume penyewaan sepeda mencapai puncaknya (*rush hour*) khusus pada hari kerja (*workingday*) selama Kuartal ke-4 (Bulan Oktober - Desember) tahun 2012, agar tim operasional dapat menetapkan jadwal *maintenance* rutin tanpa mengganggu pelanggan?
